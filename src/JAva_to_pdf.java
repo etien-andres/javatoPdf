@@ -2,11 +2,22 @@ package java_to_pdf;
 
 
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
+import com.itextpdf.*;
 
+import com.itextpdf.text.pdf.*;
+import com.itextpdf.text.pdf.qrcode.ByteArray;
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import com.sun.scenario.effect.ImageData;
+
+import javax.imageio.ImageIO;
 import javax.xml.soap.Text;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Date;
 
 
@@ -93,15 +104,35 @@ public class JAva_to_pdf {
         Anchor anchor = new Anchor("First Chapter", catFont);
         anchor.setName("First Chapter");
 
-        // Second parameter is the number of the chapter
-        Chapter catPart = new Chapter(new Paragraph(anchor), 1);
+        String imageFile = "E:/Java/Projects/java_toPdf/src/javalogo.jpg";
+        File file = new File("E:/input.jpg");
 
+
+        Chapter catPart = new Chapter(new Paragraph(anchor), 1);
+        Image image1 = null;
         Paragraph subPara = new Paragraph("Subcategory 1", subFont);
+        BufferedImage image = null;
+        ByteArrayOutputStream outputStream = null;
+        ByteArray encodedImage=null;
+        try {
+             image = ImageIO.read(new File("E:/Java/Projects/java_toPdf/src/javalogo.jpg"));
+             outputStream = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", outputStream);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+             image1 = Image.getInstance("E:/Java/Projects/java_toPdf/src/javalogo.jpg");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Section subCatPart = catPart.addSection(subPara);
         subCatPart.add(new Paragraph("Hello"));
 
         subPara = new Paragraph("Subcategory 2", subFont);
         subCatPart = catPart.addSection(subPara);
+        document.add(image1);
         subCatPart.add(new Paragraph("Paragraph 1"));
         subCatPart.add(new Paragraph("Paragraph 2"));
         subCatPart.add(new Paragraph("Paragraph 3"));
@@ -136,6 +167,19 @@ public class JAva_to_pdf {
 
     }
 
+
+
+    private static byte[] extractBytes (String ImageName) throws IOException {
+        // open image
+        File imgPath = new File(ImageName);
+        BufferedImage bufferedImage = ImageIO.read(imgPath);
+
+        // get DataBufferBytes from Raster
+        WritableRaster raster = bufferedImage .getRaster();
+        DataBufferByte data   = (DataBufferByte) raster.getDataBuffer();
+
+        return ( data.getData() );
+    }
     private static void createTable(Section subCatPart)
             throws BadElementException {
         PdfPTable table = new PdfPTable(3);
